@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/stylesheets/style.css">
+  </head>
+  <body>
+    <header>
+      <h1> <%= title %></h1>
+    </header>
+    <nav>
+      <span><a href="/" title="主页">home</a></span>
+      <% if (user) { %>
+      <span><a href="/upload" title="上传">upload</a></span>
+      <span><a href="/post" title="发表">post</a></span>
+      <span><a href="/logout" title="退出">logout</a></span>
+      <% } else { %>
+      <span><a href="/login" title="登录">login</a></span>
+      <span><a href="/reg" title="注册">reg</a></span>
+      <% } %>
+    </nav>
+<article>
