@@ -9,6 +9,7 @@ var crypto = require('crypto');
 var multer = require('multer');
 var user = require('../models/user');
 var Post = require('../models/post');
+var Comment = require('../models/comment');
 var util = require('util');
 var date = new Date();
 var storage = multer.diskStorage({
@@ -193,6 +194,27 @@ app.get('/u/:name/:day/:title',function(req,res){
     });
   });
 });
+app.post('/u/:name/:day/:title',function(req,res){
+  var date = new Date();
+  var time = date.getFullYear()+'_'+(date.getMonth()+1)+'_'+date.getDate()+'_'+date.getHours()+':'+(date.getMinutes()<10?'0'+date.getMinutes():date.getMinutes());
+  var comment = {
+    name : req.body.name,
+    email : req.body.email,
+    websit : req.body.website,
+    time : time,
+    content : req.body.content
+  };
+  var newComent = new Comment(req.params.name,req.params.day,req.params.title,comment);
+  newComent.save(function(err){
+    if(err){
+      req.flash('error',err);
+      return res.redirect('back');
+    }
+    req.flash('success','留言成功');
+    res.redirect('back');
+  });
+});
+
 app.get('/edit/:name/:day/:title',checkLogin);
 app.get('/edit/:name/:day/:title',function(req,res){
   var currentUser = req.session.user;

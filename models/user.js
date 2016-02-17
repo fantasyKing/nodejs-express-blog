@@ -26,8 +26,7 @@ user.prototype.save = function(callback){
           mongodb.close();
           return callback(err);
         }
-        console.log('用户插入成功');
-        callback(null,result.ops);
+        callback(null,result.ops[0]);
         mongodb.close();
       });
     });
