@@ -188,6 +188,22 @@ module.exports = function(app){
       });
     });
   });
+app.get('/archieve',function(req,res){
+  Post.getArchive(function(err,docs){
+    if(err){
+      req.flash('error',err);
+      return res.redirect('/');
+    }
+    res.render('archieve',{
+      title:'存档',
+      posts:docs,
+      user:req.session.user,
+      success:req.flash('success').toString(),
+      error:req.flash('error').toString()
+    });
+  });
+});
+
 app.get('/u/:name/:day/:title',function(req,res){
   var currentUser = req.session.user;
   Post.getOne(currentUser.name,req.params.day,req.params.title,function(err,post){
