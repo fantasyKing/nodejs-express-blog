@@ -129,7 +129,7 @@ module.exports = function(app){
   app.post('/post',function(req,res){
     var currentUser = req.session.user;
     var tags = [req.body.tag1,req.body.tag2,req.body.tag3];
-    var post = new Post(currentUser.name,req.body.title,tags,req.body.post);
+    var post = new Post(currentUser.name,currentUser.head,req.body.title,tags,req.body.post);
     post.save(function(err){
       if(err){
         req.flash('error',err);
@@ -258,9 +258,7 @@ app.get('/tags/:tag',function(req,res){
 });
 
 app.get('/u/:name/:day/:title',function(req,res){
-  var currentUser = req.session.user;
-  console.log(currentUser);
-  Post.getOne(currentUser.name,req.params.day,req.params.title,function(err,post){
+  Post.getOne(req.params.name,req.params.day,req.params.title,function(err,post){
     if(err){
       req.flash('error',err);
       return res.redirect('/');
@@ -277,8 +275,12 @@ app.get('/u/:name/:day/:title',function(req,res){
 app.post('/u/:name/:day/:title',function(req,res){
   var date = new Date();
   var time = date.getFullYear()+'_'+(date.getMonth()+1)+'_'+date.getDate()+'_'+date.getHours()+':'+(date.getMinutes()<10?'0'+date.getMinutes():date.getMinutes());
+  var md5 = crypto.createHash('md5');
+  var email_MD5 = md5.update(req.body.email.toLowerCase()).digest('hex');
+  var head = 'http://www.gravatar.com/avatar/'+email_MD5+'?s=48';
   var comment = {
     name : req.body.name,
+    head : head,
     email : req.body.email,
     websit : req.body.website,
     time : time,
@@ -334,6 +336,27 @@ app.get('/remove/:name/:day/:title',function(req,res){
     }
     req.flash('success','删除成功');
     res.redirect('/');
+  });
+});
+app.get('/reprint/:name/:day/:title',checkLogin);
+app.get('/reprint/:name/:day/:title',function(req,res){
+  Post.edit(req.params.name,req.params.day,req.params.title,function(err,post){
+    if(err){
+      req.flash('error',err);
+      return res.redirect('back');
+    }
+    var currentUser = req.session.user;
+    var reprint_from = {name:post.name,day:post.time.day,title:post.title};
+    var reprint_to = {name:currentUser.name,head:currentUser.head};
+    Post.reprint(reprint_from,reprint_to,function(err,post){
+      if(err){
+        req.flash('error',err);
+        return res.redirect('back');
+      }
+      req.flash('success','转载成功！');
+      var url = encodeURI('/u/'+post.name+'/'+post.time.day+'/'+post.title);
+      res.redirect(url);
+    });
   });
 });
 
